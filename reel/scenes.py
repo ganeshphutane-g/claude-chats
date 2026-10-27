@@ -6,6 +6,22 @@ import math, random, sys, pathlib
 from reelkit import *
 
 FPS = 30
+
+
+def _shot_own_page(self, body, path, alpha):
+    """Same as Renderer._shot, but each process writes its own page file. The shared _page.html let parallel
+    render processes overwrite each other's page between write and load, so frames captured the wrong shot."""
+    import os
+    html = self.dir / f"_page_{os.getpid()}.html"
+    bg = "transparent" if alpha else "#000"
+    html.write_text(f'<html><body style="margin:0;background:{bg}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
+                    f'width="{W}" height="{H}"><defs>{BRUSHES}</defs>{body}</svg></body></html>')
+    self.page.goto(html.as_uri(), wait_until="load")
+    self.page.wait_for_timeout(60)
+    self.page.screenshot(path=str(path), omit_background=alpha, clip={"x": 0, "y": 0, "width": W, "height": H})
+
+
+Renderer._shot = _shot_own_page
 SKETCHES = 14          # placeholder data approved by the person: make it true before posting
 
 # ------------------------------------------------------------------ style bible ---
