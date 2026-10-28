@@ -1,4 +1,5 @@
-work/
-reel_selftest/
 __pycache__/
 out/dec.png
+out/safe_*.png
+reel_selftest/
+work/
