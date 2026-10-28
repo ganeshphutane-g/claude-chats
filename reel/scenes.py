@@ -1082,9 +1082,11 @@ def frame(g):
                 op = eio((g - (a - XF)) / XF)
             sc, tx = SHOT_FN[name](g - a if g >= a else 0, b - a + 1)
             parts.append((op, sc + tx))
-    if g >= TOTAL - LOOP:
+    if g >= TOTAL - LOOP:   # ending fades out over the first half, the opening frame fades in over the whole window
+        t = (g - (TOTAL - LOOP) + 1) / LOOP
+        parts = [(op * (1 - eio(min(1, t * 2))), p) for op, p in parts]
         sc, tx = shot1(0, SHOTS[0][2] + 1)
-        parts.append((eio((g - (TOTAL - LOOP) + 1) / LOOP), sc + tx))
+        parts.append((eio(t), sc + tx))
     if not parts:
         parts = [(1, f'<rect width="{W}" height="{H}" fill="{WALL_B}"/>')]
     body = f'<defs>{SHARED_DEFS}</defs><rect width="{W}" height="{H}" fill="{WALL_B}"/>'
